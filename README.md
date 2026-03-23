@@ -22,7 +22,7 @@ Instead of spending days in the lab measuring molecular properties, just **type 
 
 ---
 
-## 🚀 Try It Yourself!
+## Try It Yourself!
 
 We built an **interactive web interface** using Gradio - which makes it easier for test 
 
@@ -40,6 +40,9 @@ We built an **interactive web interface** using Gradio - which makes it easier f
 - 🔗 Shareable public link
 
 ---
+## Just a Quick Workflow: 
+<img width="2000" height="1469" alt="2_Project-Workflow-Overview" src="https://github.com/user-attachments/assets/f1beaeec-9da9-4d37-b63c-3592244f7fb0" />
+
 
 ## 📊 Project Results
 
