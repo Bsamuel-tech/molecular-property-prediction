@@ -244,10 +244,10 @@ This is an academic project demonstrating ML for molecular property prediction.
 - ⭐ Star if you find it useful
 
 ## By:
-**Sam**
-**Yiming**
-**Fredric**
-@JUNIA ISEN
+- **Sam**
+- **Yiming**
+- **Fredric**
+- @JUNIA ISEN
 ---
 
 ## 📄 License
