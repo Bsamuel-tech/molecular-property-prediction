@@ -13,7 +13,7 @@
 
 Instead of spending days in the lab measuring molecular properties, just **type in a molecule's structure** (SMILES string) and get instant predictions!
 
-**Input:** `c1ccccc1` (Benzene)  
+**Input:** `c1ccccc1` (Benzene)  or copy any SMILES from excel file and see. 
 **Output:** 
 - HOMO: -5.54 eV
 - LUMO: -3.89 eV  
@@ -23,7 +23,7 @@ Instead of spending days in the lab measuring molecular properties, just **type 
 
 ## 🚀 Try It Yourself!
 
-We built an **interactive web interface** using Gradio - 
+We built an **interactive web interface** using Gradio - which makes it easier for test 
 
 <img width="1899" height="865" alt="Screenshot 2026-03-23 020031" src="https://github.com/user-attachments/assets/563d5995-82a2-4854-8bfe-0c71c5b5e613" />
 <img width="1844" height="878" alt="Screenshot 2026-03-23 020043" src="https://github.com/user-attachments/assets/525eec14-e197-4c08-8691-929d66c52bd3" />
@@ -247,7 +247,7 @@ This is an academic project demonstrating ML for molecular property prediction.
 - **Sam**
 - **Yiming**
 - **Fredric**
-- @JUNIA ISEN
+ @JUNIA ISEN
 ---
 
 ## 📄 License
