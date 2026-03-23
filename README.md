@@ -25,7 +25,11 @@ Instead of spending days in the lab measuring molecular properties, just **type 
 
 We built an **interactive web interface** using Gradio - no coding needed!
 
-![Gradio Interface](link-to-your-screenshot)
+<img width="1899" height="865" alt="Screenshot 2026-03-23 020031" src="https://github.com/user-attachments/assets/563d5995-82a2-4854-8bfe-0c71c5b5e613" />
+<img width="1844" height="878" alt="Screenshot 2026-03-23 020043" src="https://github.com/user-attachments/assets/525eec14-e197-4c08-8691-929d66c52bd3" />
+
+<img width="1881" height="835" alt="Screenshot 2026-03-23 020102" src="https://github.com/user-attachments/assets/890a741d-f457-4089-b242-8f3f4e26403d" />
+
 
 **Features:**
 - 🖼️ See the molecular structure
@@ -55,7 +59,8 @@ Our best model (Support Vector Regression) achieved:
 ### Data Distribution
 *Add your EDA_visualizations.png here*
 
-![Data Analysis](link-to-EDA-image)
+<img width="5370" height="3565" alt="EDA_visualizations" src="https://github.com/user-attachments/assets/1285315d-f816-4db8-b00d-5eef2721732f" />
+
 
 Our dataset contains **1,571 organic acceptor molecules** with measured properties.
 
@@ -64,7 +69,8 @@ Our dataset contains **1,571 organic acceptor molecules** with measured properti
 ### Model Performance
 *Add your model_performance.png here*
 
-![Predictions vs Actual](link-to-performance-image)
+<img width="5370" height="4166" alt="model_performance" src="https://github.com/user-attachments/assets/fc1a919f-90fa-462e-922b-43bb189a8028" />
+
 
 The model captures the relationship between molecular structure and electronic properties.
 
@@ -236,6 +242,11 @@ This is an academic project demonstrating ML for molecular property prediction.
 - 💡 Suggest improvements
 - 🔧 Submit pull requests
 - ⭐ Star if you find it useful
+
+## By:
+**Sam**
+**Yiming**
+**Fredric**
 
 ---
 
