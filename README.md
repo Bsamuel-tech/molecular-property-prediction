@@ -23,7 +23,7 @@ Instead of spending days in the lab measuring molecular properties, just **type 
 
 ## 🚀 Try It Yourself!
 
-We built an **interactive web interface** using Gradio - no coding needed!
+We built an **interactive web interface** using Gradio - 
 
 <img width="1899" height="865" alt="Screenshot 2026-03-23 020031" src="https://github.com/user-attachments/assets/563d5995-82a2-4854-8bfe-0c71c5b5e613" />
 <img width="1844" height="878" alt="Screenshot 2026-03-23 020043" src="https://github.com/user-attachments/assets/525eec14-e197-4c08-8691-929d66c52bd3" />
@@ -57,7 +57,7 @@ Our best model (Support Vector Regression) achieved:
 ## 📈 Visualizations
 
 ### Data Distribution
-*Add your EDA_visualizations.png here*
+
 
 <img width="5370" height="3565" alt="EDA_visualizations" src="https://github.com/user-attachments/assets/1285315d-f816-4db8-b00d-5eef2721732f" />
 
@@ -67,7 +67,7 @@ Our dataset contains **1,571 organic acceptor molecules** with measured properti
 ---
 
 ### Model Performance
-*Add your model_performance.png here*
+
 
 <img width="5370" height="4166" alt="model_performance" src="https://github.com/user-attachments/assets/fc1a919f-90fa-462e-922b-43bb189a8028" />
 
@@ -247,12 +247,12 @@ This is an academic project demonstrating ML for molecular property prediction.
 **Sam**
 **Yiming**
 **Fredric**
-
+@JUNIA ISEN
 ---
 
 ## 📄 License
 
-MIT License - Feel free to use for learning and research!
+ - Feel free to use for learning and research!
 
 ---
 
