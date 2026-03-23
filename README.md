@@ -14,6 +14,7 @@
 Instead of spending days in the lab measuring molecular properties, just **type in a molecule's structure** (SMILES string) and get instant predictions!
 
 **Input:** `c1ccccc1` (Benzene)  or copy any SMILES from excel file and see. 
+
 **Output:** 
 - HOMO: -5.54 eV
 - LUMO: -3.89 eV  
