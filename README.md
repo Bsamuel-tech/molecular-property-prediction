@@ -62,9 +62,7 @@ Our best model (Support Vector Regression) achieved:
  
 ### Data Distribution
  
- 
 <img width="5370" height="3565" alt="EDA_visualizations" src="https://github.com/user-attachments/assets/1285315d-f816-4db8-b00d-5eef2721732f" />
- 
  
 Our dataset contains **1,571 organic acceptor molecules** with measured properties.
  
@@ -72,41 +70,121 @@ Our dataset contains **1,571 organic acceptor molecules** with measured properti
  
 ### Model Performance
  
- 
 <img width="5370" height="4166" alt="model_performance" src="https://github.com/user-attachments/assets/fc1a919f-90fa-462e-922b-43bb189a8028" />
- 
  
 The model captures the relationship between molecular structure and electronic properties.
  
 ---
+
+🔬 Step 6: Causal Inference & Counterfactual Molecular Design
+ 
+> **Moving from "What properties does this molecule have?" → "How do we design molecules with the properties we want?"**
+ 
+Standard ML models learn *correlations* from training data. The problem: correlations can be misleading. For example, nitro groups correlate with low HOMO — but is it the nitro group causing it, or is it that nitro-containing molecules *also* happen to have longer conjugation? A correlation model cannot tell the difference, and will fail when applied to new molecular scaffolds.
+ 
+We address this with three new tools:
+ 
+---
+ 
+### 🕸️ Causal Graph
+ 
+A directed graph encoding **chemical domain knowledge** as causal relationships — not patterns learned from data. Each arrow means "this feature causally drives that property."
+ 
+![Causal Graph](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/causal_graph.png?raw=true)
+ 
+- 🔵 **Blue nodes** — molecular features (causes)
+- 🔴 **Red nodes** — electronic properties (effects)
+- 🟠 **Orange node** — confounder (Mol. Weight creates false correlations and must be controlled for)
+ 
+---
+ 
+### 🌡️ Causal Effects Heatmap
+ 
+Using **DoWhy** (Microsoft's causal inference library), we estimate the *true causal effect* of each feature on HOMO, LUMO, and Bandgap — controlling for confounders like molecular weight.
+ 
+![Causal Effects Heatmap](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/causal_effects_heatmap.png?raw=true)
+ 
+- **Red** = feature raises the property
+- **Blue** = feature lowers the property
+- Numbers show the causal effect in eV after removing confounding
+ 
+---
+ 
+### 🔄 Causal vs Correlation Comparison
+ 
+This chart shows exactly where raw correlations are misleading — where the grey bar (correlation) and red bar (true causal effect) differ significantly, the correlation was confounded.
+ 
+![Causal vs Correlation](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/causal_vs_correlation.png?raw=true)
+ 
+---
+ 
+### 🧪 Counterfactual Analysis
+ 
+We ask: *"What would happen to this molecule's properties if we made this structural change?"*
+ 
+The model predicts both the original and the modified molecule, then reports **Δ (delta) = the causal effect of the intervention** — not a correlation.
+ 
+![Counterfactual Effects](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/counterfactual_effects.png?raw=true)
+ 
+**Available interventions:**
+- Thiophene → Benzene (removes S atom)
+- Benzene → Thiophene (adds S atom, lowers LUMO)
+- Add Fluorine — EWG, lowers HOMO & LUMO
+- Add Cyano group — strong EWG, widens bandgap
+ 
+---
+ 
+### 🎯 Inverse Design — Target a Specific Bandgap
+ 
+Given a **target bandgap**, the model ranks all structural modifications by how close they get to that target. This transforms the model from a screening tool into a **molecular design assistant**.
+ 
+**Target: 1.5 eV** (useful for solar cell absorbers)
+ 
+![Inverse Design 1.5 eV](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/inverse_1.5eV.png?raw=true)
+ 
+**Target: 2.2 eV** (useful for blue/green emitters)
+ 
+![Inverse Design 2.2 eV](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/inverse_2.2eV.png?raw=true)
+ 
+The **green bar** is the best structural modification. The **red dashed line** is the target.
+ 
+---
+
  
 ## 🗂️ Project Structure
  
 ```
 📦 molecular-property-prediction
-├── 📓 Step_1_Data_Preparation.ipynb          # Merge & clean data
-├── 📓 Step_2_Feature_Extraction.ipynb         # SMILES → Numbers
-├── 📓 Step_3_Model_Training.ipynb             # Train ML models
-├── 📓 Step_4_Evaluation_Visualization.ipynb   # Analyze results
-├── 📓 Step_5_Prediction_Tool_Gradio.ipynb     # Interactive app
-├── 📓 Step_6_Causal_Inference.ipynb           # Causal design tool
-├── 📁 Data_files/                             # Input datasets
-└── 📁 Each_Step_Output_Download/              # Results & models
+├── 📓 Step_1_Data_Preparation.ipynb            # Merge & clean data
+├── 📓 Step_2_Feature_Extraction.ipynb           # SMILES → Numbers
+├── 📓 Step_3_Model_Training.ipynb               # Train 5 ML models (LR, SVR, RF, XGB, NN)
+├── 📓 Step_4_Evaluation_Visualization.ipynb     # Analyze results with best model (RF)
+├── 📓 Step_5_Prediction_Tool_Gradio.ipynb       # Interactive Gradio app
+├── 📓 Step_6_Causal_Inference.ipynb             # Causal graph, DoWhy, counterfactuals
+├── 📁 Data_files/                               # Input datasets
+└── 📁 Each_Step_Output_Download/               # Results, models & visualizations
+    ├── models_rf.pkl                            # Random Forest (best)
+    ├── models_svr.pkl                           # SVR
+    ├── causal_graph.png
+    ├── causal_effects_heatmap.png
+    ├── causal_vs_correlation.png
+    ├── counterfactual_effects.png
+    ├── counterfactual_results.csv
+    ├── inverse_1.5eV.png
+    └── inverse_2.2eV.png
 ```
  
 ---
  
 ## 🎮 How to Use
  
-### **Option 1: Google Colab (Easiest - No Setup Required)**
+### **Option 1: Google Colab (Easiest — No Setup Required)**
  
 1. Click on any notebook above
-2. Click "Open in Colab" 
+2. Click "Open in Colab"
 3. Run cells in order (just click ▶️)
 4. Upload data when prompted
 5. Download results
- 
-**Perfect for:** Quick testing, presentations, sharing with team
  
 ---
  
@@ -118,37 +196,47 @@ git clone https://github.com/Bsamuel-tech/molecular-property-prediction.git
 cd molecular-property-prediction
  
 # Install dependencies
-pip install rdkit pandas numpy scikit-learn tensorflow gradio matplotlib seaborn
+pip install rdkit pandas numpy scikit-learn tensorflow xgboost gradio matplotlib seaborn dowhy networkx
  
 # Run Gradio app
 cd Each_Step_Output_Download
 python predict_gradio.py
 ```
  
-**Perfect for:** Development, customization, offline use
-
 ---
 
-## 🧪 Interactive Gradio Demo
+## 🔬 The Science Behind It
  
-Run **Step_5_Prediction_Tool_Gradio.ipynb** to launch the web interface:
+### How It Works (Steps 1–5):
  
-```python
-# The notebook will give you a link like:
-Running on public URL: https://abc123.gradio.live
+```
+SMILES String → Morgan Fingerprints → ML Model → Predictions
+   (Input)        (2048 features)      (RF/XGB)    (3 properties)
 ```
  
-**Share this link** with anyone - they can use it without installing anything!
+### How Causal Inference Works (Step 6):
  
-### What Users Can Do:
-- ✅ Enter any SMILES string
-- ✅ See the molecular structure
-- ✅ Get predictions instantly
-- ✅ Try example molecules (Benzene, Naphthalene, etc.)
-- ✅ Upload CSV for batch predictions
+```
+Molecule → Structural Change → Predict Original + Modified → Δ = Causal Effect
+                                        ↓
+                             Rank by distance to target → Best modification
+```
  
 ---
  
+## 📚 Models Tested
+ 
+| Model | Result | Notes |
+|-------|--------|-------|
+| **Linear Regression** | ❌ R² < 0 | Chemistry is non-linear |
+| **SVR (RBF kernel)** | ✅ R² = 0.20–0.36 | Good on small datasets |
+| **Random Forest** | ✅ **Best overall** R² = 0.22–0.38 | Wins on HOMO & LUMO |
+| **XGBoost** | ✅ **Best on Bandgap** R² = 0.385 | Fast, handles sparse data |
+| **Neural Network** | ⚠️ R² negative | Needs 10,000+ samples |
+ 
+**Key lesson:** More complex ≠ better when data is limited (1,571 molecules).
+ 
+---
 ## 🔬 Step 6: Causal Inference & Molecular Design
  
 **NEW:** Beyond prediction - now we can **design molecules** with targeted properties!
