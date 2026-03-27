@@ -73,7 +73,6 @@ Our dataset contains **1,571 organic acceptor molecules** with measured properti
 
 <img width="5365" height="4166" alt="model_performance" src="https://github.com/user-attachments/assets/6b7094d4-bec6-493d-8137-dcd3a179d476" />
 
- 
 The model captures the relationship between molecular structure and electronic properties.
  
 ---
@@ -118,9 +117,9 @@ Using **DoWhy** (Microsoft's causal inference library), we estimate the *true ca
  
 This chart shows exactly where raw correlations are misleading — where the grey bar (correlation) and red bar (true causal effect) differ significantly, the correlation was confounded.
  
-<img width="5370" height="1851" alt="causal_vs_correlation" src="https://github.com/user-attachments/assets/03f00923-4687-4924-9c8d-7cd2baf36099" />
+<img width="5364" height="1772" alt="causal_vs_correlation ______" src="https://github.com/user-attachments/assets/2c3931f2-d762-4264-9a61-d7a04b1eeef0" />
 
- 
+
 ---
  
 ### 🧪 Counterfactual Analysis
