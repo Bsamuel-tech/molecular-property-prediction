@@ -62,15 +62,17 @@ Our best model (Support Vector Regression) achieved:
  
 ### Data Distribution
  
-<img width="5370" height="3565" alt="EDA_visualizations" src="https://github.com/user-attachments/assets/1285315d-f816-4db8-b00d-5eef2721732f" />
+<img width="5370" height="3565" alt="EDA_visualizations" src="https://github.com/user-attachments/assets/e45d4b04-579e-485e-8714-b2ef887c3a46" />
+
  
 Our dataset contains **1,571 organic acceptor molecules** with measured properties.
  
 ---
  
 ### Model Performance
- 
-<img width="5370" height="4166" alt="model_performance" src="https://github.com/user-attachments/assets/fc1a919f-90fa-462e-922b-43bb189a8028" />
+
+<img width="5365" height="4166" alt="model_performance" src="https://github.com/user-attachments/assets/6b7094d4-bec6-493d-8137-dcd3a179d476" />
+
  
 The model captures the relationship between molecular structure and electronic properties.
  
@@ -90,7 +92,8 @@ We address this with three new tools:
  
 A directed graph encoding **chemical domain knowledge** as causal relationships — not patterns learned from data. Each arrow means "this feature causally drives that property."
  
-![Causal Graph](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/causal_graph.png?raw=true)
+<img width="2968" height="1768" alt="causal_graph" src="https://github.com/user-attachments/assets/37dba119-b54a-47a8-8b2a-652a0171b753" />
+
  
 - 🔵 **Blue nodes** — molecular features (causes)
 - 🔴 **Red nodes** — electronic properties (effects)
@@ -102,8 +105,9 @@ A directed graph encoding **chemical domain knowledge** as causal relationships 
  
 Using **DoWhy** (Microsoft's causal inference library), we estimate the *true causal effect* of each feature on HOMO, LUMO, and Bandgap — controlling for confounders like molecular weight.
  
-![Causal Effects Heatmap](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/causal_effects_heatmap.png?raw=true)
- 
+
+ <img width="2562" height="964" alt="causal_effects_heatmap" src="https://github.com/user-attachments/assets/61fc799e-0376-4f8b-8717-4fead82ee8ab" />
+
 - **Red** = feature raises the property
 - **Blue** = feature lowers the property
 - Numbers show the causal effect in eV after removing confounding
@@ -114,7 +118,8 @@ Using **DoWhy** (Microsoft's causal inference library), we estimate the *true ca
  
 This chart shows exactly where raw correlations are misleading — where the grey bar (correlation) and red bar (true causal effect) differ significantly, the correlation was confounded.
  
-![Causal vs Correlation](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/causal_vs_correlation.png?raw=true)
+<img width="5370" height="1851" alt="causal_vs_correlation" src="https://github.com/user-attachments/assets/03f00923-4687-4924-9c8d-7cd2baf36099" />
+
  
 ---
  
@@ -124,7 +129,8 @@ We ask: *"What would happen to this molecule's properties if we made this struct
  
 The model predicts both the original and the modified molecule, then reports **Δ (delta) = the causal effect of the intervention** — not a correlation.
  
-![Counterfactual Effects](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/counterfactual_effects.png?raw=true)
+<img width="3364" height="1236" alt="counterfactual_effects" src="https://github.com/user-attachments/assets/3e7bd966-3258-425d-82e2-505f5cf78cce" />
+
  
 **Available interventions:**
 - Thiophene → Benzene (removes S atom)
@@ -140,11 +146,13 @@ Given a **target bandgap**, the model ranks all structural modifications by how 
  
 **Target: 1.5 eV** (useful for solar cell absorbers)
  
-![Inverse Design 1.5 eV](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/inverse_1.5eV.png?raw=true)
+!<img width="2165" height="965" alt="inverse_1 5eV" src="https://github.com/user-attachments/assets/be448252-608e-482a-8a20-09cac30b261a" />
+
  
 **Target: 2.2 eV** (useful for blue/green emitters)
  
-![Inverse Design 2.2 eV](https://github.com/Bsamuel-tech/molecular-property-prediction/blob/main/Each_Step_Output_Download/inverse_2.2eV.png?raw=true)
+<img width="2165" height="965" alt="inverse_2 2eV" src="https://github.com/user-attachments/assets/1f810a43-29d2-4eed-a077-2ea3621c732f" />
+
  
 The **green bar** is the best structural modification. The **red dashed line** is the target.
  
@@ -237,107 +245,10 @@ Molecule → Structural Change → Predict Original + Modified → Δ = Causal E
 **Key lesson:** More complex ≠ better when data is limited (1,571 molecules).
  
 ---
-## 🔬 Step 6: Causal Inference & Molecular Design
- 
+
 **NEW:** Beyond prediction - now we can **design molecules** with targeted properties!
  
-### What Step 6 Does:
- 
-Instead of just asking *"What properties does this molecule have?"*, we now answer:
-- 🎯 *"How can I design a molecule with HOMO = -5.5 eV?"*
-- 🔄 *"What if I replace thiophene with benzene?"*
-- 🧪 *"Which modification increases bandgap by 0.2 eV?"*
- 
-### Key Features:
- 
-✅ **Causal Graph** - Shows which molecular features *cause* property changes (not just correlations)
- 
-✅ **Counterfactual Queries** - Test 18 different structural modifications:
-- Ring replacements (thiophene ↔ benzene, furan → thiophene)
-- Functional groups (add NO₂, CN, CF₃, OH, NH₂)
-- Halogen substitutions (F ↔ Cl ↔ Br)
-- Conjugation changes (C=C ↔ C-C)
- 
-✅ **Synthetic Feasibility** - Filters out impractical molecules using QED scoring
- 
-✅ **Multi-Objective Design** - Optimize HOMO, LUMO, and bandgap simultaneously
- 
-✅ **Mechanistic Explanations** - Each suggestion includes *why* it works chemically
- 
-### Example Output:
- 
-```
-Target: HOMO = -5.5 eV, Bandgap = 2.0 eV
- 
-Top 3 Suggestions:
-1. Add NO₂ group → ΔHOMO = -0.15 eV, ΔEg = +0.12 eV (QED: 0.67)
-2. Replace benzene with pyridine → ΔHOMO = -0.08 eV, ΔEg = +0.05 eV (QED: 0.71)
-3. Add CN group → ΔHOMO = -0.11 eV, ΔEg = +0.09 eV (QED: 0.65)
-```
- 
-### Outputs from Step 6:
-- `causal_graph.png` - Visual map of chemical cause-effect relationships
-- `causal_vs_correlation.png` - Shows spurious vs real effects
-- `counterfactual_effects.png` - Average property changes by modification type
-- `counterfactual_results.csv` - Detailed results table
-- `inverse_design_*.png` - Suggested modifications for target properties
- 
----
- 
-## 🔬 The Science Behind It
- 
-### How It Works:
- 
-```
-SMILES String → Morgan Fingerprints → ML Model → Predictions
-   (Input)      (2048 features)        (SVR)      (3 properties)
-```
- 
-**1. Input:** Molecule as text (SMILES)
-```
-Example: c1ccccc1 = Benzene
-```
- 
-**2. Feature Extraction:** Convert to numbers using Morgan Fingerprints
-```
-Encodes: rings, bonds, atoms, functional groups
-Output: 2048 binary features
-```
- 
-**3. Machine Learning:** Support Vector Regression predicts properties
-```
-Trained on 1,571 molecules
-Uses RBF kernel with optimized parameters
-```
- 
-**4. Output:** Electronic properties
-```
-HOMO, LUMO, Optical Bandgap
-```
- 
-**5. Causal Inference (Step 6):** Design new molecules
-```
-Causal Graph → Counterfactual Predictions → Inverse Design
-```
- 
----
- 
-## 📚 What We Learned
- 
-### Models Tested:
- 
-| Model | Description | Result |
-|-------|-------------|--------|
-| **Linear Regression** | Simple baseline | ❌ Too simple (R² < 0) |
-| **Support Vector Regression** | Non-linear with RBF kernel | ✅ **Best** (R² = 0.32-0.36) |
-| **Neural Network** | Deep learning | ⚠️ Needs more data |
-| **Multi-Output NN** | Predicts all 3 together | ⚠️ Didn't improve |
-| **Causal Inference** | DoWhy + Counterfactuals | ✅ **Design tool** |
- 
-**Winner:** SVR with hyperparameter tuning 🏆
- 
----
- 
+
 ## 💡 Key Insights
  
 ✅ **What Worked:**
