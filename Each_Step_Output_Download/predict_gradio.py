@@ -13,7 +13,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Load models
-with open('models_svr.pkl', 'rb') as f:
+with open('models_rf.pkl', 'rb') as f:
     models = pickle.load(f)
 
 def smiles_to_fingerprint(smiles, radius=2, nBits=2048):

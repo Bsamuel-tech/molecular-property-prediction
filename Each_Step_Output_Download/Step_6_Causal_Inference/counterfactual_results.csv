@@ -1,0 +1,5 @@
+Molecule,Change,DELTA HOMO (eV),DELTA LUMO (eV),DELTA Bandgap,Reason
+CCCCCCc%15ccc(C%14(c1ccc(CCCCCC)cc1)Cc9c...,Benzene to Thiophene,0.01,-0.01,-0.015,Adds S atom — lowers LUMO
+CCCCCCCCCc1c(C=C2C(=O)c3cc(Cl)c(Cl)cc3C2...,Benzene to Thiophene,-0.002,0.009,0.009,Adds S atom — lowers LUMO
+CCCCCCCCc%14ccc(c3c(C=c2c(=O)c1cc(F)c(F)...,Thiophene to Benzene,-0.003,-0.029,0.016,Removes S atom — reduces heteroatom effect
+CCCCCCCCc%14ccc(c3c(C=c2c(=O)c1cc(F)c(F)...,Benzene to Thiophene,-0.006,-0.009,0.014,Adds S atom — lowers LUMO
