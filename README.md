@@ -45,17 +45,17 @@ We built an **interactive web interface** using Gradio - which makes it easier f
 
 
 ## 📊 Project Results
-
-Our best model (Support Vector Regression) achieved:
-
-| Property | R² Score | MAE (eV) | Performance |
-|----------|----------|----------|-------------|
-| **HOMO** | 0.317 | 0.077 | ⭐⭐⭐ Good |
-| **LUMO** | 0.195 | 0.103 | ⭐⭐⭐ Good |
-| **Optical Bandgap** | 0.357 | 0.070 | ⭐⭐⭐⭐ Very Good |
-
-**What this means:** Predictions are typically within 0.07-0.10 eV of experimental values!
-
+ 
+Our best models (Random Forest & XGBoost) achieved:
+ 
+| Property | Best Model | R² Score | MAE (eV) | Performance |
+|----------|-----------|----------|----------|-------------|
+| **HOMO** | Random Forest | 0.384 | 0.075 | ⭐⭐⭐ Good |
+| **LUMO** | Random Forest | 0.219 | 0.098 | ⭐⭐⭐ Good |
+| **Optical Bandgap** | XGBoost | 0.385 | 0.072 | ⭐⭐⭐⭐ Very Good |
+ 
+**What this means:** Predictions are typically within 0.07–0.10 eV of experimental values. Bandgap is the most predictable property.
+ 
 ---
 
 ## 📈 Visualizations
