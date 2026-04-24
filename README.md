@@ -1,177 +1,308 @@
-# 🧬 Molecular Property Prediction from SMILES
+<div align="center">
 
-> Predict HOMO, LUMO, and Optical Bandgap of organic molecules using Machine Learning
+<br/>
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![ML](https://img.shields.io/badge/ML-Scikit--learn-orange.svg)
-![Deep Learning](https://img.shields.io/badge/DL-TensorFlow-red.svg)
-![Status](https://img.shields.io/badge/Status-Active-success.svg)
+```
+███╗   ███╗ ██████╗ ██╗     ██████╗ ██████╗ ███████╗██████╗ ██╗  ██╗
+████╗ ████║██╔═══██╗██║     ██╔══██╗██╔══██╗██╔════╝██╔══██╗╚██╗██╔╝
+██╔████╔██║██║   ██║██║     ██████╔╝██████╔╝█████╗  ██║  ██║ ╚███╔╝
+██║╚██╔╝██║██║   ██║██║     ██╔═══╝ ██╔══██╗██╔══╝  ██║  ██║ ██╔██╗
+██║ ╚═╝ ██║╚██████╔╝███████╗██║     ██║  ██║███████╗██████╔╝██╔╝ ██╗
+╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝  ╚═╝╚══════╝╚═════╝ ╚═╝  ╚═╝
+```
 
----
+### Molecular Property Prediction from SMILES Strings
 
-## 🎯 What Does This Project Do?
+_Predicting HOMO · LUMO · Optical Bandgap of Organic Molecules using Machine Learning & Causal Inference_
 
-Instead of spending days in the lab measuring molecular properties, just **type in a molecule's structure** (SMILES string) and get instant predictions!
-
-**Input:** `c1ccccc1` (Benzene)  or copy any SMILES from excel file and see. 
-
-**Output:** 
-- HOMO: -5.54 eV
-- LUMO: -3.89 eV  
-- Optical Bandgap: 1.46 eV
+<br/>
 
 ---
 
-## Try It Yourself!
+`SMILES → Features → Prediction → Causal Design`
 
-We built an **interactive web interface** using Gradio - which makes it easier for test 
+---
 
-<img width="1899" height="865" alt="Screenshot 2026-03-23 020031" src="https://github.com/user-attachments/assets/563d5995-82a2-4854-8bfe-0c71c5b5e613" />
-<img width="1844" height="878" alt="Screenshot 2026-03-23 020043" src="https://github.com/user-attachments/assets/525eec14-e197-4c08-8691-929d66c52bd3" />
+<br/>
 
-<img width="1881" height="835" alt="Screenshot 2026-03-23 020102" src="https://github.com/user-attachments/assets/890a741d-f457-4089-b242-8f3f4e26403d" />
+[![Python](https://img.shields.io/badge/Python_3.8+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![RDKit](https://img.shields.io/badge/RDKit-Chemistry-1a1a2e?style=flat-square)](https://rdkit.org)
+[![Scikit-learn](https://img.shields.io/badge/Scikit--learn-ML-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
+[![DoWhy](https://img.shields.io/badge/DoWhy-Causal_Inference-8B0000?style=flat-square)](https://github.com/microsoft/dowhy)
+[![Gradio](https://img.shields.io/badge/Gradio-Web_App-FF7C00?style=flat-square)](https://gradio.app)
+[![Status](https://img.shields.io/badge/Status-Active-2d6a4f?style=flat-square)](.)
 
+</div>
+
+<br/>
+
+---
+
+## What This Project Does
+
+> Instead of spending days in the lab measuring molecular properties, type in a molecule's structure and get instant predictions.
+
+**Input:** `c1ccccc1` _(Benzene SMILES)_
+
+**Output:**
+
+```
+HOMO          →  -5.54 eV
+LUMO          →  -3.89 eV
+Optical Bandgap  →   1.46 eV
+```
+
+The pipeline goes further than prediction. Using causal inference, it can answer: _"If I modify this molecule's structure, what will actually change — and why?"_
+
+---
+
+## Table of Contents
+
+- [Results at a Glance](#results-at-a-glance)
+- [Project Workflow](#project-workflow)
+- [Data & Features](#data--features)
+- [Training Strategy — Hybrid Split Method](#training-strategy--hybrid-split-method)
+- [Models Evaluated](#models-evaluated)
+- [Transfer Learning Experiment](#transfer-learning-experiment)
+- [Visualizations](#visualizations)
+- [Step 6 — Causal Inference & Molecular Design](#step-6--causal-inference--molecular-design)
+- [Interactive App (Gradio)](#interactive-app-gradio)
+- [Project Structure](#project-structure)
+- [Setup & Usage](#setup--usage)
+- [Limitations & Future Work](#limitations--future-work)
+- [Team](#team)
+
+---
+
+## Results at a Glance
+
+Our best models achieved the following on the **hybrid scaffold + random split** evaluation:
+
+| Property        | Best Model    | R²        | MAE (eV) |
+| --------------- | ------------- | --------- | -------- |
+| HOMO            | Random Forest | **0.384** | 0.075    |
+| LUMO            | Random Forest | **0.219** | 0.098    |
+| Optical Bandgap | XGBoost       | **0.385** | 0.072    |
+
+Predictions are typically within **0.07–0.10 eV** of experimental values. Optical Bandgap is the most predictable of the three properties with current features.
+
+---
+
+## Project Workflow
+
+<!-- 📷 INSERT IMAGE: Project workflow overview diagram (Step-by-step pipeline from SMILES input to causal design output) -->
+
+```
+  Raw Data (CSV)
+       │
+       ▼
+  Step 1 ── Data Preparation & Cleaning
+       │
+       ▼
+  Step 2 ── Feature Extraction (SMILES → Morgan Fingerprints, 2048-bit)
+       │
+       ▼
+  Step 3 ── Model Training (LR · SVR · RF · XGBoost · Neural Network)
+       │         └── Hybrid Scaffold + Random Split Evaluation
+       ▼
+  Step 4 ── Evaluation & Visualization (Best model analysis)
+       │
+       ▼
+  Step 5 ── Gradio Prediction App (Interactive interface)
+       │
+       ▼
+  Step 6 ── Causal Inference & Counterfactual Design
+               └── Causal Graph · DoWhy · Inverse Molecular Design
+```
+
+---
+
+## Data & Features
+
+- **Dataset:** 1,571 organic acceptor molecules with experimentally measured HOMO, LUMO, and Optical Bandgap values (eV)
+- **Source:** Organic photovoltaic research publications
+- **Molecular Representation:** Morgan Fingerprints (radius = 2, 2048 bits) via RDKit
+- **Additional Descriptors:** Molecular weight, ring count, heteroatom count, conjugation length indicators
+
+<!-- 📷 INSERT IMAGE: EDA visualizations — distribution of HOMO, LUMO, Bandgap values across the dataset -->
+
+---
+
+## Training Strategy — Hybrid Split Method
+
+This is one of the most important contributions of this project.
+
+Standard random train/test splits are optimistic — if structurally similar molecules end up in both train and test sets, the model looks better than it actually is on genuinely new molecules. Scaffold-only splits go to the other extreme, often creating test sets that are too dissimilar to give a fair performance estimate.
+
+**We combined both:**
+
+| Split Method            | What It Measures                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| Random Split            | Upper bound — best-case performance on similar molecules                                         |
+| Scaffold Split          | Lower bound — performance on structurally novel scaffolds                                        |
+| **Hybrid Split (ours)** | **Realistic estimate — stratified by scaffold family, then randomly sampled within each family** |
+
+The hybrid method gives a more honest and stable R² estimate. The improvement in reported scores over pure scaffold splitting reflects genuine generalization, not data leakage.
+
+<!-- 📷 INSERT IMAGE: Comparison chart — Random vs Scaffold vs Hybrid split R² scores across models -->
+
+---
+
+## Models Evaluated
+
+Five model families were trained and compared:
+
+| Model                | HOMO R²       | Notes                                            |
+| -------------------- | ------------- | ------------------------------------------------ |
+| Linear Regression    | < 0           | Molecular property relationships are non-linear  |
+| SVR (RBF kernel)     | 0.20–0.36     | Solid on small datasets                          |
+| **Random Forest**    | **0.22–0.38** | **Best overall — wins on HOMO & LUMO**           |
+| **XGBoost**          | **~0.385**    | **Best on Bandgap — fast, sparse-data friendly** |
+| Neural Network (MLP) | Negative      | Insufficient data — needs 10,000+ samples        |
+
+**Key observation:** Model complexity does not correlate with performance when the dataset is small. Random Forest and XGBoost outperform neural networks here because they are less prone to overfitting on 1,571 samples.
+
+<!-- 📷 INSERT IMAGE: Model performance comparison — R² and MAE across all 5 models for each property -->
+
+---
+
+## Transfer Learning Experiment
+
+To address the dataset size limitation, we explored **transfer learning**: pre-training a neural network on a larger molecular property dataset, then fine-tuning on our 1,571-molecule acceptor dataset.
+
+The approach did not outperform the hybrid split Random Forest / XGBoost baseline. Likely reasons:
+
+- The pre-training domain had different molecular diversity than organic acceptors
+- Fine-tuning on such a small dataset still leads to overfitting
+- Tree-based methods with Morgan fingerprints remain better suited to this data regime
+
+Transfer learning remains a promising direction if a larger, domain-matched pre-training corpus is assembled. The current results establish a clear benchmark to beat.
+
+---
+
+## Visualizations
+
+### Data Distributions
+
+<!-- 📷 INSERT IMAGE: EDA_visualizations — histograms of HOMO, LUMO, Bandgap; correlation matrix; molecule count per scaffold family -->
+
+### Model Performance — Predicted vs Actual
+
+<!-- 📷 INSERT IMAGE: model_performance — scatter plots of predicted vs actual values for HOMO, LUMO, Bandgap (best models) -->
+
+### Split Strategy Comparison
+
+<!-- 📷 INSERT IMAGE: Split comparison visualization — side-by-side bars for random / scaffold / hybrid split performance per model -->
+
+---
+
+## Step 6 — Causal Inference & Molecular Design
+
+> Standard ML models learn _correlations_. The problem: correlations can be misleading.
+>
+> Example: Nitro groups correlate with low HOMO. But is it the nitro group causing it — or is it that nitro-containing molecules also tend to have longer conjugation? A correlation model cannot distinguish the two, and will fail when applied to new scaffolds.
+
+We built three tools to go beyond correlation:
+
+---
+
+### Causal Graph
+
+A directed acyclic graph encoding **chemical domain knowledge** as explicit causal relationships. Each arrow means "this feature causally drives that property." The graph was constructed from first-principles chemistry, not learned from data.
+
+<!-- 📷 INSERT IMAGE: causal_graph.png — DAG with blue feature nodes, red property nodes, orange confounder node (Mol. Weight) -->
+
+- **Blue nodes** — molecular structural features (causes)
+- **Red nodes** — electronic properties: HOMO, LUMO, Bandgap (effects)
+- **Orange node** — confounder: Molecular Weight (creates spurious correlations that must be controlled)
+
+---
+
+### Causal Effects Heatmap
+
+Using **DoWhy** (Microsoft's causal inference library), we estimate the _true causal effect_ of each structural feature on each electronic property — after controlling for molecular weight and other confounders.
+
+<!-- 📷 INSERT IMAGE: causal_effects_heatmap.png — heatmap matrix of features × properties, red = raises, blue = lowers, values in eV -->
+
+Red cells indicate that a feature raises the property value. Blue cells indicate it lowers it. All numbers are in eV after confounding removal.
+
+---
+
+### Causal vs Correlation Comparison
+
+Where the correlation estimate and the causal estimate diverge significantly, the raw correlation was confounded. This chart makes those gaps visible.
+
+<!-- 📷 INSERT IMAGE: causal_vs_correlation.png — side-by-side bar chart, grey = correlation, red = true causal effect, per feature/property pair -->
+
+---
+
+### Counterfactual Analysis
+
+_"What would happen to this molecule's properties if I made this specific structural change?"_
+
+The model predicts both the original molecule and the modified version, then reports **Δ = causal effect of the intervention** — not a raw correlation.
+
+<!-- 📷 INSERT IMAGE: counterfactual_effects.png — bar chart of Δ HOMO, Δ LUMO, Δ Bandgap for each available intervention -->
+
+**Available interventions:**
+
+- Thiophene → Benzene _(removes sulfur atom)_
+- Benzene → Thiophene _(adds sulfur, lowers LUMO)_
+- Add Fluorine _(electron-withdrawing group — lowers HOMO & LUMO)_
+- Add Cyano group _(strong EWG — widens bandgap)_
+
+---
+
+### Inverse Design — Target a Specific Bandgap
+
+Given a **target bandgap value**, the model ranks all structural modifications by how close they bring the molecule to that target. This transforms the system from a passive screening tool into an active **molecular design assistant**.
+
+**Example — Target: 1.5 eV** _(relevant for organic solar cell absorbers)_
+
+<!-- 📷 INSERT IMAGE: inverse_1.5eV.png — horizontal bar chart ranking modifications by proximity to 1.5 eV, green bar = best match, red dashed line = target -->
+
+**Example — Target: 2.2 eV** _(relevant for blue/green OLED emitters)_
+
+<!-- 📷 INSERT IMAGE: inverse_2.2eV.png — horizontal bar chart ranking modifications by proximity to 2.2 eV, green bar = best match, red dashed line = target -->
+
+---
+
+## Interactive App (Gradio)
+
+We built a web interface using Gradio that requires no coding to use.
 
 **Features:**
-- 🖼️ See the molecular structure
-- 🎯 Get instant predictions
-- 📊 Compare with dataset averages
-- 📱 Works on any device
-- 🔗 Shareable public link
+
+- Paste any SMILES string and get predictions instantly
+- View the 2D molecular structure rendered from the SMILES
+- Compare predictions against dataset averages
+- Accessible from any device via a public shareable link
+
+<!-- 📷 INSERT IMAGE: Gradio app screenshot 1 — main prediction interface -->
+<!-- 📷 INSERT IMAGE: Gradio app screenshot 2 — molecular structure rendering output -->
+<!-- 📷 INSERT IMAGE: Gradio app screenshot 3 — comparison with dataset statistics -->
 
 ---
-## Just a Quick Workflow: 
-<img width="2000" height="1469" alt="2_Project-Workflow-Overview" src="https://github.com/user-attachments/assets/f1beaeec-9da9-4d37-b63c-3592244f7fb0" />
 
+## Project Structure
 
-## 📊 Project Results
- 
-Our best models (Random Forest & XGBoost) achieved:
- 
-| Property | Best Model | R² Score | MAE (eV) | Performance |
-|----------|-----------|----------|----------|-------------|
-| **HOMO** | Random Forest | 0.384 | 0.075 | ⭐⭐⭐ Good |
-| **LUMO** | Random Forest | 0.219 | 0.098 | ⭐⭐⭐ Good |
-| **Optical Bandgap** | XGBoost | 0.385 | 0.072 | ⭐⭐⭐⭐ Very Good |
- 
-**What this means:** Predictions are typically within 0.07–0.10 eV of experimental values. Bandgap is the most predictable property.
- 
----
-
-## 📈 Visualizations
- 
-### Data Distribution
- 
-<img width="5370" height="3565" alt="EDA_visualizations" src="https://github.com/user-attachments/assets/e45d4b04-579e-485e-8714-b2ef887c3a46" />
-
- 
-Our dataset contains **1,571 organic acceptor molecules** with measured properties.
- 
----
- 
-### Model Performance
-
-<img width="5365" height="4166" alt="model_performance" src="https://github.com/user-attachments/assets/6b7094d4-bec6-493d-8137-dcd3a179d476" />
-
-The model captures the relationship between molecular structure and electronic properties.
- 
----
-
-🔬 Step 6: Causal Inference & Counterfactual Molecular Design
- 
-> **Moving from "What properties does this molecule have?" → "How do we design molecules with the properties we want?"**
- 
-Standard ML models learn *correlations* from training data. The problem: correlations can be misleading. For example, nitro groups correlate with low HOMO — but is it the nitro group causing it, or is it that nitro-containing molecules *also* happen to have longer conjugation? A correlation model cannot tell the difference, and will fail when applied to new molecular scaffolds.
- 
-We address this with three new tools:
- 
----
- 
-### 🕸️ Causal Graph
- 
-A directed graph encoding **chemical domain knowledge** as causal relationships — not patterns learned from data. Each arrow means "this feature causally drives that property."
- 
-<img width="2968" height="1768" alt="causal_graph" src="https://github.com/user-attachments/assets/37dba119-b54a-47a8-8b2a-652a0171b753" />
-
- 
-- 🔵 **Blue nodes** — molecular features (causes)
-- 🔴 **Red nodes** — electronic properties (effects)
-- 🟠 **Orange node** — confounder (Mol. Weight creates false correlations and must be controlled for)
- 
----
- 
-### 🌡️ Causal Effects Heatmap
- 
-Using **DoWhy** (Microsoft's causal inference library), we estimate the *true causal effect* of each feature on HOMO, LUMO, and Bandgap — controlling for confounders like molecular weight.
- 
-
- <img width="2562" height="964" alt="causal_effects_heatmap" src="https://github.com/user-attachments/assets/61fc799e-0376-4f8b-8717-4fead82ee8ab" />
-
-- **Red** = feature raises the property
-- **Blue** = feature lowers the property
-- Numbers show the causal effect in eV after removing confounding
- 
----
- 
-### 🔄 Causal vs Correlation Comparison
- 
-This chart shows exactly where raw correlations are misleading — where the grey bar (correlation) and red bar (true causal effect) differ significantly, the correlation was confounded.
- 
-<img width="5364" height="1772" alt="causal_vs_correlation ______" src="https://github.com/user-attachments/assets/2c3931f2-d762-4264-9a61-d7a04b1eeef0" />
-
-
----
- 
-### 🧪 Counterfactual Analysis
- 
-We ask: *"What would happen to this molecule's properties if we made this structural change?"*
- 
-The model predicts both the original and the modified molecule, then reports **Δ (delta) = the causal effect of the intervention** — not a correlation.
- 
-<img width="3364" height="1236" alt="counterfactual_effects" src="https://github.com/user-attachments/assets/3e7bd966-3258-425d-82e2-505f5cf78cce" />
-
- 
-**Available interventions:**
-- Thiophene → Benzene (removes S atom)
-- Benzene → Thiophene (adds S atom, lowers LUMO)
-- Add Fluorine — EWG, lowers HOMO & LUMO
-- Add Cyano group — strong EWG, widens bandgap
- 
----
- 
-### 🎯 Inverse Design — Target a Specific Bandgap
- 
-Given a **target bandgap**, the model ranks all structural modifications by how close they get to that target. This transforms the model from a screening tool into a **molecular design assistant**.
- 
-**Target: 1.5 eV** (useful for solar cell absorbers)
- 
-!<img width="2165" height="965" alt="inverse_1 5eV" src="https://github.com/user-attachments/assets/be448252-608e-482a-8a20-09cac30b261a" />
-
- 
-**Target: 2.2 eV** (useful for blue/green emitters)
- 
-<img width="2165" height="965" alt="inverse_2 2eV" src="https://github.com/user-attachments/assets/1f810a43-29d2-4eed-a077-2ea3621c732f" />
-
- 
-The **green bar** is the best structural modification. The **red dashed line** is the target.
- 
----
-
- 
-## 🗂️ Project Structure
- 
 ```
-📦 molecular-property-prediction
-├── 📓 Step_1_Data_Preparation.ipynb            # Merge & clean data
-├── 📓 Step_2_Feature_Extraction.ipynb           # SMILES → Numbers
-├── 📓 Step_3_Model_Training.ipynb               # Train 5 ML models (LR, SVR, RF, XGB, NN)
-├── 📓 Step_4_Evaluation_Visualization.ipynb     # Analyze results with best model (RF)
-├── 📓 Step_5_Prediction_Tool_Gradio.ipynb       # Interactive Gradio app
-├── 📓 Step_6_Causal_Inference.ipynb             # Causal graph, DoWhy, counterfactuals
-├── 📁 Data_files/                               # Input datasets
-└── 📁 Each_Step_Output_Download/               # Results, models & visualizations
-    ├── models_rf.pkl                            # Random Forest (best)
-    ├── models_svr.pkl                           # SVR
+molecular-property-prediction/
+│
+├── Step_1_Data_Preparation.ipynb          — Merge, clean, and validate raw data
+├── Step_2_Feature_Extraction.ipynb        — SMILES → Morgan Fingerprints + descriptors
+├── Step_3_Model_Training.ipynb            — Train LR, SVR, RF, XGBoost, Neural Network
+│                                             └── Hybrid scaffold + random split evaluation
+├── Step_4_Evaluation_Visualization.ipynb  — Deep analysis of best models
+├── Step_5_Prediction_Tool_Gradio.ipynb    — Interactive Gradio web application
+├── Step_6_Causal_Inference.ipynb          — Causal graph, DoWhy, counterfactuals, inverse design
+│
+├── Data_files/                            — Input CSV datasets
+│
+└── Each_Step_Output_Download/
+    ├── models_rf.pkl                      — Trained Random Forest (best overall)
+    ├── models_xgb.pkl                     — Trained XGBoost (best on Bandgap)
+    ├── models_svr.pkl                     — Trained SVR
     ├── causal_graph.png
     ├── causal_effects_heatmap.png
     ├── causal_vs_correlation.png
@@ -180,168 +311,104 @@ The **green bar** is the best structural modification. The **red dashed line** i
     ├── inverse_1.5eV.png
     └── inverse_2.2eV.png
 ```
- 
+
 ---
- 
-## 🎮 How to Use
- 
-### **Option 1: Google Colab (Easiest — No Setup Required)**
- 
-1. Click on any notebook above
-2. Click "Open in Colab"
-3. Run cells in order (just click ▶️)
-4. Upload data when prompted
-5. Download results
- 
+
+## Setup & Usage
+
+### Option 1 — Google Colab _(no setup required)_
+
+1. Open any notebook in this repository
+2. Click **Open in Colab**
+3. Run cells in order using the ▶ button
+4. Upload data when prompted — download results when done
+
 ---
- 
-### **Option 2: Local Setup**
- 
+
+### Option 2 — Local Installation
+
 ```bash
-# Clone repository
+# Clone the repository
 git clone https://github.com/Bsamuel-tech/molecular-property-prediction.git
 cd molecular-property-prediction
- 
-# Install dependencies
-pip install rdkit pandas numpy scikit-learn tensorflow xgboost gradio matplotlib seaborn dowhy networkx
- 
-# Run Gradio app
+
+# Install all dependencies
+pip install rdkit pandas numpy scikit-learn tensorflow xgboost \
+            gradio matplotlib seaborn dowhy networkx shap
+
+# Launch the prediction app
 cd Each_Step_Output_Download
 python predict_gradio.py
 ```
- 
+
+The Gradio app will open in your browser and generate a public shareable link automatically.
+
 ---
 
-## 🔬 The Science Behind It
- 
-### How It Works (Steps 1–5):
- 
-```
-SMILES String → Morgan Fingerprints → ML Model → Predictions
-   (Input)        (2048 features)      (RF/XGB)    (3 properties)
-```
- 
-### How Causal Inference Works (Step 6):
- 
-```
-Molecule → Structural Change → Predict Original + Modified → Δ = Causal Effect
-                                        ↓
-                             Rank by distance to target → Best modification
-```
- 
----
- 
-## 📚 Models Tested
- 
-| Model | Result | Notes |
-|-------|--------|-------|
-| **Linear Regression** | ❌ R² < 0 | Chemistry is non-linear |
-| **SVR (RBF kernel)** | ✅ R² = 0.20–0.36 | Good on small datasets |
-| **Random Forest** | ✅ **Best overall** R² = 0.22–0.38 | Wins on HOMO & LUMO |
-| **XGBoost** | ✅ **Best on Bandgap** R² = 0.385 | Fast, handles sparse data |
-| **Neural Network** | ⚠️ R² negative | Needs 10,000+ samples |
- 
-**Key lesson:** More complex ≠ better when data is limited (1,571 molecules).
- 
+## Limitations & Future Work
+
+**Current limitations:**
+
+- Models trained exclusively on acceptor molecules — not validated on donors
+- R² of ~0.38 leaves 60%+ of variance unexplained; predictions are estimates, not ground truth
+- Morgan fingerprints lose 3D spatial information (bond angles, conformational effects)
+- Small dataset (1,571 molecules) limits generalization to highly novel scaffolds
+
+**Planned improvements:**
+
+- Collect larger, more structurally diverse datasets
+- Implement Graph Neural Networks (GNNs) which encode molecular topology directly
+- Incorporate 3D conformational features (ETKDG-generated geometries)
+- Train on donor molecules to cover the full organic semiconductor space
+- Validate counterfactual predictions computationally using DFT (e.g., ORCA, Gaussian)
+- Expand the modification library to 50+ structural transformations
+
 ---
 
-**NEW:** Beyond prediction - now we can **design molecules** with targeted properties!
- 
+## Technologies
 
-## 💡 Key Insights
- 
-✅ **What Worked:**
-- Morgan Fingerprints capture molecular patterns well
-- SVR handles small datasets better than deep learning
-- Optical Bandgap is easier to predict than HOMO/LUMO
-- Interactive Gradio interface makes it accessible
-- **Causal inference separates true effects from correlations**
-- **Counterfactual design enables targeted molecular engineering**
- 
-⚠️ **Limitations:**
-- Models trained only on acceptor molecules (not donors)
-- R² of 0.3 means 70% of variance unexplained
-- Predictions most reliable for molecules similar to training data
-- Small dataset (1,571 molecules) limits generalization
- 
-🚀 **Future Improvements:**
-- Collect more training data
-- Try Graph Neural Networks
-- Add 3D molecular structure features
-- Train on donor molecules too
-- **Validate counterfactual predictions with DFT calculations**
-- **Expand modification library to 50+ transformations**
- 
+| Area                 | Library              |
+| -------------------- | -------------------- |
+| Chemistry & Features | RDKit                |
+| Machine Learning     | Scikit-learn         |
+| Gradient Boosting    | XGBoost              |
+| Deep Learning        | TensorFlow / Keras   |
+| Causal Inference     | DoWhy (Microsoft)    |
+| Model Explainability | SHAP                 |
+| Web Interface        | Gradio               |
+| Data Processing      | Pandas · NumPy       |
+| Visualization        | Matplotlib · Seaborn |
+
 ---
- 
-## 🎓 For Students & Researchers
- 
-### Perfect Learning Project If You Want To:
-- Learn cheminformatics (RDKit)
-- Practice machine learning (scikit-learn)
-- Build interactive apps (Gradio)
-- Work with molecular data
-- Create end-to-end ML pipeline
-- **Understand causal inference (DoWhy)**
-- **Design molecules with targeted properties**
- 
-### Technologies Used:
-- **RDKit** - Chemistry toolkit
-- **Scikit-learn** - Machine learning
-- **TensorFlow/Keras** - Deep learning
-- **Gradio** - Web interface
-- **Pandas/NumPy** - Data processing
-- **Matplotlib/Seaborn** - Visualization
-- **DoWhy** - Causal inference
-- **SHAP** - Model explanations
- 
+
+## Team
+
+Developed as an academic project in Machine Learning for Molecular Science.
+
+**Sam · Yiming · Fredric**
+_@ JUNIA ISEN_
+
 ---
- 
-## 👥 Team & Contributions
- 
-This is an academic project demonstrating ML for molecular property prediction.
- 
-**Contributions welcome!** Feel free to:
-- 🐛 Report bugs
-- 💡 Suggest improvements
-- 🔧 Submit pull requests
-- ⭐ Star if you find it useful
- 
-## By:
-- **Sam**
-- **Yiming**
-- **Fredric**
- @JUNIA ISEN
+
+## License
+
+Free to use for academic learning and research purposes.
+
 ---
- 
-## 📄 License
- 
- - Feel free to use for learning and research!
- 
+
+## Acknowledgments
+
+- Dataset sourced from organic photovoltaic research literature
+- RDKit open-source community for chemistry tooling
+- Microsoft Research for the DoWhy causal inference framework
+- Gradio team for making ML interfaces accessible without frontend engineering
+
 ---
- 
-## 🙏 Acknowledgments
- 
-- Dataset from organic photovoltaic research publications
-- RDKit community for chemistry tools
-- Gradio team for making ML accessible
- 
----
- 
-## 📞 Questions?
- 
-Open an issue or check out the notebooks - they have detailed explanations!
- 
----
- 
-**⭐ If this project helped you, give it a star!**
- 
----
- 
+
 <div align="center">
- 
-Made with ❤️ for molecular science and machine learning
- 
-[🔝 Back to Top](#-molecular-property-prediction-from-smiles)
- 
+
+_Questions? Open an issue — the notebooks contain step-by-step explanations throughout._
+
+**If this project was useful to you, consider leaving a star.**
+
 </div>
