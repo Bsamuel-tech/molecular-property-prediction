@@ -28,7 +28,7 @@ _Predicting HOMO · LUMO · Optical Bandgap of Organic Molecules using Machine L
 [![Python](https://img.shields.io/badge/Python_3.8+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![RDKit](https://img.shields.io/badge/RDKit-Chemistry-1a1a2e?style=flat-square)](https://rdkit.org)
 [![Scikit-learn](https://img.shields.io/badge/Scikit--learn-ML-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
-[![DoWhy](https://img.shields.io/badge/DoWhy-Causal_Inference-8B0000?style=flat-square)](https://github.com/microsoft/dowhy)
+[![EconML](https://img.shields.io/badge/EconML-Causal_Inference-8B0000?style=flat-square)](https://github.com/microsoft/EconML)
 [![Gradio](https://img.shields.io/badge/Gradio-Web_App-FF7C00?style=flat-square)](https://gradio.app)
 [![Status](https://img.shields.io/badge/Status-Active-2d6a4f?style=flat-square)](.)
 
@@ -76,15 +76,15 @@ The pipeline goes further than prediction. Using causal inference, it can answer
 
 ## Results at a Glance
 
-Our best models achieved the following on the **hybrid scaffold + random split** evaluation:
+Our best model (Random Forest) achieved the following across both evaluation strategies:
 
-| Property        | Best Model    | R²        | MAE (eV) |
-| --------------- | ------------- | --------- | -------- |
-| HOMO            | Random Forest | **0.384** | 0.075    |
-| LUMO            | Random Forest | **0.219** | 0.098    |
-| Optical Bandgap | XGBoost       | **0.385** | 0.072    |
+| Property        | Random Split R² | Scaffold Split R² | Hybrid R² | MAE (eV) |
+| --------------- | --------------- | ----------------- | --------- | -------- |
+| HOMO            | **0.659**       | 0.020             | **0.340** | 0.065    |
+| LUMO            | **0.385**       | 0.020             | **0.203** | 0.066    |
+| Optical Bandgap | **0.642**       | −0.070            | **0.286** | 0.055    |
 
-Predictions are typically within **0.07–0.10 eV** of experimental values. Optical Bandgap is the most predictable of the three properties with current features.
+Random Forest was the best overall model across all three properties. The **hybrid R²** is the most honest estimate of real-world performance — sitting between the optimistic random split and the pessimistic scaffold split. The large generalization gaps (0.365–0.712) confirm the model performs well on structurally familiar molecules but has limited extrapolation ability to truly novel scaffolds.
 
 ---
 
@@ -112,7 +112,7 @@ Predictions are typically within **0.07–0.10 eV** of experimental values. Opti
        │
        ▼
   Step 6 ── Causal Inference & Counterfactual Design
-               └── Causal Graph · DoWhy · Inverse Molecular Design
+               └── Double Machine Learning (EconML) · Counterfactual Engine · Inverse Molecular Design
 ```
 
 ---
@@ -121,8 +121,9 @@ Predictions are typically within **0.07–0.10 eV** of experimental values. Opti
 
 - **Dataset:** 1,571 organic acceptor molecules with experimentally measured HOMO, LUMO, and Optical Bandgap values (eV)
 - **Source:** Organic photovoltaic research publications
+- **Important note:** Records represent donor–acceptor molecular pairs rather than fully independent observations. Identical molecular structures appear across multiple entries due to the combinatorial pairing design — meaning standard random-split cross-validation overestimates true generalization performance. This is explicitly addressed by the hybrid evaluation strategy.
 - **Molecular Representation:** Morgan Fingerprints (radius = 2, 2048 bits) via RDKit
-- **Additional Descriptors:** Molecular weight, ring count, heteroatom count, conjugation length indicators
+- **Additional Descriptors:** 12 interpretable structural features including molecular weight, LogP, aromatic ring count, conjugation length, EWG/EDG counts, thiophene subunit count, fluorine count, and heteroatom fraction
 
 <!-- 📷 INSERT IMAGE: EDA visualizations — distribution of HOMO, LUMO, Bandgap values across the dataset -->
 
@@ -140,9 +141,9 @@ Standard random train/test splits are optimistic — if structurally similar mol
 | ----------------------- | ------------------------------------------------------------------------------------------------ |
 | Random Split            | Upper bound — best-case performance on similar molecules                                         |
 | Scaffold Split          | Lower bound — performance on structurally novel scaffolds                                        |
-| **Hybrid Split (ours)** | **Realistic estimate — stratified by scaffold family, then randomly sampled within each family** |
+| **Hybrid Split (ours)** | **Realistic estimate — simple average of random and scaffold R², balancing both extremes**       |
 
-The hybrid method gives a more honest and stable R² estimate. The improvement in reported scores over pure scaffold splitting reflects genuine generalization, not data leakage.
+The hybrid method gives a more honest and stable R² estimate. Prior work reported only random-split R² values, which our results show overestimate true generalization by **0.37–0.71 R² units** relative to scaffold splits. The hybrid metric avoids both the optimism of random-only evaluation and the excessive pessimism of scaffold-only evaluation.
 
 <!-- 📷 INSERT IMAGE: Comparison chart — Random vs Scaffold vs Hybrid split R² scores across models -->
 
@@ -152,15 +153,15 @@ The hybrid method gives a more honest and stable R² estimate. The improvement i
 
 Five model families were trained and compared:
 
-| Model                | HOMO R²       | Notes                                            |
-| -------------------- | ------------- | ------------------------------------------------ |
-| Linear Regression    | < 0           | Molecular property relationships are non-linear  |
-| SVR (RBF kernel)     | 0.20–0.36     | Solid on small datasets                          |
-| **Random Forest**    | **0.22–0.38** | **Best overall — wins on HOMO & LUMO**           |
-| **XGBoost**          | **~0.385**    | **Best on Bandgap — fast, sparse-data friendly** |
-| Neural Network (MLP) | Negative      | Insufficient data — needs 10,000+ samples        |
+| Model                | Random R² (HOMO) | Notes                                                        |
+| -------------------- | ---------------- | ------------------------------------------------------------ |
+| Linear Regression    | −0.143           | Failed entirely — molecular property relationships are non-linear |
+| SVR (RBF kernel)     | 0.317            | Solid on small datasets                                      |
+| **Random Forest**    | **0.659**        | **Best overall — wins on HOMO, LUMO, and Bandgap**           |
+| XGBoost              | 0.365            | Competitive but did not consistently outperform RF           |
+| Neural Network (MLP) | −5.410           | Catastrophic overfitting — insufficient data (needs 10,000+ samples) |
 
-**Key observation:** Model complexity does not correlate with performance when the dataset is small. Random Forest and XGBoost outperform neural networks here because they are less prone to overfitting on 1,571 samples.
+**Key observation:** Model complexity does not correlate with performance when the dataset is small. Random Forest outperforms all other models here because it is less prone to overfitting on 1,571 samples. Neural Networks overfitted catastrophically with a HOMO R² of −5.41 under random split, confirming they are not appropriate for this data regime without pre-training on a larger corpus.
 
 <!-- 📷 INSERT IMAGE: Model performance comparison — R² and MAE across all 5 models for each property -->
 
@@ -170,7 +171,7 @@ Five model families were trained and compared:
 
 To address the dataset size limitation, we explored **transfer learning**: pre-training a neural network on a larger molecular property dataset, then fine-tuning on our 1,571-molecule acceptor dataset.
 
-The approach did not outperform the hybrid split Random Forest / XGBoost baseline. Likely reasons:
+The approach did not outperform the hybrid split Random Forest baseline. Likely reasons:
 
 - The pre-training domain had different molecular diversity than organic acceptors
 - Fine-tuning on such a small dataset still leads to overfitting
@@ -206,21 +207,21 @@ We built three tools to go beyond correlation:
 
 ---
 
-### Causal Graph
+### Double Machine Learning (DML)
 
-A directed acyclic graph encoding **chemical domain knowledge** as explicit causal relationships. Each arrow means "this feature causally drives that property." The graph was constructed from first-principles chemistry, not learned from data.
+We used **EconML's LinearDML estimator** (Chernozhukov et al., 2018) to estimate the true causal effect of five pre-specified structural features on each electronic property — after controlling for confounders.
+
+The confounder matrix was constructed by compressing 2,048-bit Morgan fingerprints to 100 components via SVD, appending 7 interpretable structural features, then applying PCA to retain 95.1% of total variance (94 principal components). Treatment variables used **Hammett sigma-para weighted EWG/EDG scores** rather than simple group counts, to account for the differential electron-withdrawing and donating strengths of individual functional groups. DML was executed with 10-fold cross-fitting.
+
+All five tested causal relationships were **directionally consistent with published organic electronics literature**, but none survived Benjamini-Hochberg FDR correction at q < 0.05 — an honest finding driven by the small dataset size rather than a failure of the method. The Conjugation → Bandgap relationship passed a 100-permutation placebo test (true |ATE| = 0.256 >> 95th percentile threshold of 0.038), confirming the DML pipeline is functioning correctly.
 
 <!-- 📷 INSERT IMAGE: causal_graph.png — DAG with blue feature nodes, red property nodes, orange confounder node (Mol. Weight) -->
-
-- **Blue nodes** — molecular structural features (causes)
-- **Red nodes** — electronic properties: HOMO, LUMO, Bandgap (effects)
-- **Orange node** — confounder: Molecular Weight (creates spurious correlations that must be controlled)
 
 ---
 
 ### Causal Effects Heatmap
 
-Using **DoWhy** (Microsoft's causal inference library), we estimate the _true causal effect_ of each structural feature on each electronic property — after controlling for molecular weight and other confounders.
+Estimated causal effects of each structural feature on each electronic property, after controlling for confounders.
 
 <!-- 📷 INSERT IMAGE: causal_effects_heatmap.png — heatmap matrix of features × properties, red = raises, blue = lowers, values in eV -->
 
@@ -240,7 +241,7 @@ Where the correlation estimate and the causal estimate diverge significantly, th
 
 _"What would happen to this molecule's properties if I made this specific structural change?"_
 
-The model predicts both the original molecule and the modified version, then reports **Δ = causal effect of the intervention** — not a raw correlation.
+The model predicts both the original molecule and the modified version, then reports **Δ = causal effect of the intervention** — not a raw correlation. Explicit reliability warnings are shown for fragile causal estimates, ensuring design recommendations are only drawn from statistically robust relationships.
 
 <!-- 📷 INSERT IMAGE: counterfactual_effects.png — bar chart of Δ HOMO, Δ LUMO, Δ Bandgap for each available intervention -->
 
@@ -269,13 +270,14 @@ Given a **target bandgap value**, the model ranks all structural modifications b
 
 ## Interactive App (Gradio)
 
-We built a web interface using Gradio that requires no coding to use.
+We built a web interface using Gradio that requires no coding to use (~80 lines of Python).
 
 **Features:**
 
 - Paste any SMILES string and get predictions instantly
 - View the 2D molecular structure rendered from the SMILES
 - Compare predictions against dataset averages
+- Counterfactual analysis tab with explicit reliability warnings
 - Accessible from any device via a public shareable link
 
 <!-- 📷 INSERT IMAGE: Gradio app screenshot 1 — main prediction interface -->
@@ -295,13 +297,13 @@ molecular-property-prediction/
 │                                             └── Hybrid scaffold + random split evaluation
 ├── Step_4_Evaluation_Visualization.ipynb  — Deep analysis of best models
 ├── Step_5_Prediction_Tool_Gradio.ipynb    — Interactive Gradio web application
-├── Step_6_Causal_Inference.ipynb          — Causal graph, DoWhy, counterfactuals, inverse design
+├── Step_6_Causal_Inference.ipynb          — DML causal inference, counterfactuals, inverse design
 │
 ├── Data_files/                            — Input CSV datasets
 │
 └── Each_Step_Output_Download/
     ├── models_rf.pkl                      — Trained Random Forest (best overall)
-    ├── models_xgb.pkl                     — Trained XGBoost (best on Bandgap)
+    ├── models_xgb.pkl                     — Trained XGBoost
     ├── models_svr.pkl                     — Trained SVR
     ├── causal_graph.png
     ├── causal_effects_heatmap.png
@@ -334,7 +336,7 @@ cd molecular-property-prediction
 
 # Install all dependencies
 pip install rdkit pandas numpy scikit-learn tensorflow xgboost \
-            gradio matplotlib seaborn dowhy networkx shap
+            gradio matplotlib seaborn econml networkx shap
 
 # Launch the prediction app
 cd Each_Step_Output_Download
@@ -350,15 +352,19 @@ The Gradio app will open in your browser and generate a public shareable link au
 **Current limitations:**
 
 - Models trained exclusively on acceptor molecules — not validated on donors
-- R² of ~0.38 leaves 60%+ of variance unexplained; predictions are estimates, not ground truth
+- Dataset records represent donor–acceptor pairs rather than fully independent molecules, inflating random-split performance
+- Hybrid R² of ~0.28–0.34 leaves substantial variance unexplained; predictions are estimates, not ground truth
 - Morgan fingerprints lose 3D spatial information (bond angles, conformational effects)
-- Small dataset (1,571 molecules) limits generalization to highly novel scaffolds
+- Small dataset (1,571 records, ~605 unique acceptors) limits generalization to highly novel scaffolds
+- No DML causal relationships survived FDR correction at the current sample size
 
 **Planned improvements:**
 
-- Collect larger, more structurally diverse datasets
+- Expand to 5,000+ fully independent molecules to provide sufficient statistical power for stable causal estimation
+- Adopt group-based cross-validation stratified by unique molecular identity to prevent information leakage
 - Implement Graph Neural Networks (GNNs) which encode molecular topology directly
 - Incorporate 3D conformational features (ETKDG-generated geometries)
+- Incorporate donor-side structural features into the DML confounder matrix
 - Train on donor molecules to cover the full organic semiconductor space
 - Validate counterfactual predictions computationally using DFT (e.g., ORCA, Gaussian)
 - Expand the modification library to 50+ structural transformations
@@ -373,7 +379,7 @@ The Gradio app will open in your browser and generate a public shareable link au
 | Machine Learning     | Scikit-learn         |
 | Gradient Boosting    | XGBoost              |
 | Deep Learning        | TensorFlow / Keras   |
-| Causal Inference     | DoWhy (Microsoft)    |
+| Causal Inference     | EconML (Microsoft)   |
 | Model Explainability | SHAP                 |
 | Web Interface        | Gradio               |
 | Data Processing      | Pandas · NumPy       |
@@ -388,6 +394,8 @@ Developed as an academic project in Machine Learning for Molecular Science.
 **Sam · Yiming · Fredric**
 _@ JUNIA ISEN_
 
+Supervisor: **Dr. Kekeli N'KONOU**
+
 ---
 
 ## License
@@ -400,7 +408,7 @@ Free to use for academic learning and research purposes.
 
 - Dataset sourced from organic photovoltaic research literature
 - RDKit open-source community for chemistry tooling
-- Microsoft Research for the DoWhy causal inference framework
+- Microsoft Research for the EconML causal inference framework
 - Gradio team for making ML interfaces accessible without frontend engineering
 
 ---
